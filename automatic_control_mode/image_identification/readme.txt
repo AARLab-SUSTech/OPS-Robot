@@ -1,1 +1,0 @@
-This code uses Python 3.7 version.
