@@ -1,0 +1,2 @@
+video,frame_number,rect1_cx,rect1_cy,rect2_cx,rect2_cy,rect3_cx,rect3_cy,gt_cx,gt_cy,std_x_px,std_y_px,mean_dist_px,algo_cx,algo_cy,algo_error_px,algo_ang_error,w_cor_x,w_cor_y,w_cor_err,rmse_w_cor
+4_19_human_demoorigin,230,563,265,561,271,560,266,561,267,1.25,2.62,2.75,551,246,23.26,0.38,-0.58,-1.21,1.34,1.34
