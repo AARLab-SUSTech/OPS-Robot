@@ -123,16 +123,14 @@ int val=0;
 long aimPosition = 0LL;
 long currentPositon;
 
-// ---- Z axis stations, in millimetres, absolute from the homing switch ----
-// STEPS_PER_MM MUST be calibrated: home, send z_move(100) (= 20000 steps),
-// measure the real travel D in mm, then STEPS_PER_MM = 20000 / D.
 const float STEPS_PER_MM = 200.0;
-const float Z_START_MM = 40.0;   // z == Z_CMD_START : a run begins
-const float Z_WORK_MM  = 60.0;   // ordinary trajectory point
-const float Z_HOME_MM  = 0.0;    // z == Z_CMD_END   : the run is finished
+const float Z_START_MM = 40.0;
+const float Z_WORK_MM  = 60.0;
+const float Z_HOME_MM  = 0.0;
 
-const int Z_CMD_START = 200;     // z value that marks the start of a run
-const int Z_CMD_END   = 0;       // z value that marks the end of a run
+const int Z_CMD_END   = 0;
+
+const unsigned long ROUND_GAP_MS = 60000UL;
 
 
 
@@ -179,7 +177,7 @@ void setup() {
   
     
     to_0_point();
-    z_move_mm(Z_START_MM);
+    start_round();
     stepper1.run();
 //    Serial2.print("k");
 
@@ -216,27 +214,24 @@ void move(int x, int y, int z){
   delay(2);
 
 
-  // The z field selects the station; the run needs no stored state.
+
   if (z == Z_CMD_END)
   {
-    // End of a run: straighten the gimbal, then pull all the way out.
+
     run_angle_stop(y,1,8);
     run_angle_stop(x,2,8);
     z_move_mm(Z_HOME_MM);
     Serial1.println("ok");
+
+
+    to_0_point();
+    delay(2000);
+    start_round();
     return;
   }
 
-  if (z == Z_CMD_START)
-  {
-    // Start of a run: back to the standby depth before aiming.
-    z_move_mm(Z_START_MM);
-  }
-  else
-  {
-    // Ordinary trajectory point: full working depth.
-    z_move_mm(Z_WORK_MM);
-  }
+
+  z_move_mm(Z_WORK_MM);
 
   run_angle_stop(y,1,8);
   run_angle_stop(x,2,8);
@@ -282,8 +277,13 @@ void z_move(int posi){
     stepper1.run();
 }
 
-// Absolute Z position in millimetres, measured from the homing switch.
-// Positive mm means extended, matching the negative step convention above.
+
+void start_round(){
+    z_move_mm(Z_START_MM);
+    delay(1000);
+    Serial1.println("start");
+}
+
 void z_move_mm(float mm){
     long target = (long)(-mm * STEPS_PER_MM);
     stepper1.runToNewPosition(target);
