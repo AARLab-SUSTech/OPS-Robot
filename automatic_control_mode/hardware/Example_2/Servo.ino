@@ -136,7 +136,7 @@ const unsigned long ROUND_GAP_MS = 60000UL;
 
 #define PWM  8     
 #define DIR  9     
-//#define MF  10    
+//#define MF  10
 
 #define switchEnd  A8
 
@@ -179,7 +179,6 @@ void setup() {
     to_0_point();
     start_round();
     stepper1.run();
-//    Serial2.print("k");
 
   
 }
@@ -187,7 +186,6 @@ void setup() {
 void loop() {
   
   String info = getinfo();
-//  Serial.println("number:");
 if (info.length()>0){
     x=info.substring(0,3);
     y=info.substring(3,6);
@@ -225,12 +223,10 @@ void move(int x, int y, int z){
 
 
     to_0_point();
-    delay(2000);
-    start_round();
+     start_round();
+
     return;
   }
-
-
   z_move_mm(Z_WORK_MM);
 
   run_angle_stop(y,1,8);
@@ -246,9 +242,7 @@ void to_0_point(){
    val = analogRead(switchEnd);   
    Serial.println(val);
       while(1){
-//        aimPosition = aimPosition - moveSteps*2 ;
-        stepper1.runToNewPosition(aimPosition );   
-//           stepper1.moveTo(-2000);
+        stepper1.runToNewPosition(aimPosition );
         aimPosition = aimPosition - moveSteps*2 ;
         val = analogRead(switchEnd); 
         if(val <=10){
@@ -271,23 +265,36 @@ void z_move(int posi){
       stepper1.runToNewPosition(moveSteps * posi); 
       delay(100);
       currentPositon = moveSteps * posi;
-//      Serial.println("currentPositon ");
-//      comchar = "";
     }
     stepper1.run();
 }
 
 
 void start_round(){
+    Serial.print("if start sampling? Y: ");
+    while (Serial.available()) Serial.read();
+
+  while (true) {
+  if (Serial.available() > 0) {
+    char input = Serial.read();
+
+    if (input == '\r' || input == '\n') continue;
+
+    if (input == 'Y' || input == 'y') {
+      break;
+    }
+    else {
+      Serial.println("Waiting for sampling, please input Y: ");
+    }
+  }
+}
     z_move_mm(Z_START_MM);
-    delay(1000);
     Serial1.println("start");
 }
 
 void z_move_mm(float mm){
     long target = (long)(-mm * STEPS_PER_MM);
     stepper1.runToNewPosition(target);
-    delay(100);
     currentPositon = target;
     stepper1.run();
 }
@@ -304,7 +311,6 @@ String getinfo(){
     { 
       Serial1.println("ok");
       if (comdata.substring(0,3)=="SSS"){
-//        int T1=get_I_T(1);
         Serial1.print("ok");
         delay(2);
       }
@@ -362,10 +368,6 @@ int run_angle(int angle_num ,int motor){
      int po_m=angle_num/256;
      int po_h=0;
 
-//     String po=tohex(angle_num,6);
-//     String posi_l="0x"+po.substring(0,2);
-//     String posi_m="0x"+po.substring(2,4);
-//     String posi_h="0x"+po.substring(4,6);
 
      
      if(motor==1){
@@ -377,7 +379,7 @@ int run_angle(int angle_num ,int motor){
        angle_before_Y=angle_num;
      Serial2.write(head_1,5);
      }
-//
+
      if(motor==2){
         if (angle_before_X<= angle_num){
         dir=0;    
@@ -387,7 +389,7 @@ int run_angle(int angle_num ,int motor){
        angle_before_X=angle_num;
      Serial2.write(head_2,5);
      }
-////   
+
      unsigned char end_value[1]={direc[dir]+posi_low[angle_num]+posi_med[angle_num]+posi_hig[angle_num]+speed_360[0]+speed_360[1]};  
      
      Serial2.write(direc[dir]);
@@ -397,7 +399,6 @@ int run_angle(int angle_num ,int motor){
      Serial2.write(speed_360,4);
      Serial2.write(end_value[0]);
 int T=get_I_T(motor);
-//Serial1.println(T);
 return T;
  
     }
