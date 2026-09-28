@@ -41,8 +41,6 @@ def add_force(opera, image0, item):
 def end_sig():
     a = 0
     num = opera.getfeedback()
-    # The lower computer may answer with non-numeric text (e.g. "ok"),
-    # so only convert once the payload is actually a number.
     if num is not None and num.strip().isdigit():
         if int(num) == 1234:
             a = 1

@@ -16,17 +16,14 @@ class detect():
         self.n_cl = n_cl
 
     def getFrameLabel(self, img_input, verbose=False):
-        # load the frame
         image = np.float32(img_input)
         h, w = np.shape(image)
         img = np.reshape(image, (h, w, 1))
-        # add coordinates
         row_indexes = np.arange(0, h)
         col_indexes = np.arange(0, w)
         coordinates = np.zeros(shape=(h, w, 2))
         coordinates[..., 0] = normalize(repmat(row_indexes, w, 1).T)
         coordinates[..., 1] = normalize(repmat(col_indexes, h, 1))
-        # print(np.shape(coordinates))
         data = np.concatenate((img, coordinates), axis=-1)
         data = (np.reshape(data, newshape=(w * h, 3)))
         kmeans = KMeans(n_clusters=self.n_cl, random_state=0).fit(data)
@@ -71,7 +68,6 @@ class detect():
         return max_contour
 
     def find_xy(self, image):
-        # decrease resolution
         fx = 0.3
         fy = 0.3
         # fx = 0.7
@@ -79,7 +75,6 @@ class detect():
         frame = cv2.resize(image, (0, 0), fx=fx, fy=fy, interpolation=cv2.INTER_NEAREST)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         h, w = np.shape(frame)
-        # cut the dectetion frame
 
         offset_x = 0.35
         frame = frame[0:int(h * 0.35)]
