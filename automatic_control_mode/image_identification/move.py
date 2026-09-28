@@ -66,7 +66,7 @@ class operation:
             time.sleep(0.01)
 
             # print("return_sig is",return_sig)
-            if return_sig == "4321":
+            if return_sig == "ok" or return_sig == "4321":
                 data = [x, y]
                 sig = self.engin1.send_data(xy=data, z=z)
                 # print("return_sig is",return_sig)

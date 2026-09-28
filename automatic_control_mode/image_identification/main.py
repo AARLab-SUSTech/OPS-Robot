@@ -49,6 +49,17 @@ def end_sig():
     return a
 
 
+def wait_for_start():
+    print("Waiting for the start command from the arduino:")
+    while True:
+        msg = opera.getfeedback()
+        if msg is not None and "start" in msg:
+            print("Start command received, image recognition begins:")
+            return
+        cap.read()
+        time.sleep(0.02)
+
+
 def main_fun(Ret, de, ready_to_sampling, ):
 
     in_position = [640, 150]
@@ -109,11 +120,15 @@ def main_fun(Ret, de, ready_to_sampling, ):
                 cv2.waitKey(1)
                 # cv2.imwrite(path+'picture/'+str(i)+'.jpg',image)
 
-            if i > 500 or is_end == 1:
+            if ready_to_sampling or i > 500 or is_end == 1:
                 print(i)
                 # print(is_end)
                 print("finished")
-                operation.run_mechine(position=in_position)
+                # Leave the recognition loop first, then run the trajectory.
+                if ready_to_sampling:
+                    opera.run_mechine(position=in_position)
+                else:
+                    print("Target never locked, no sampling performed.")
                 break
 
         else:
@@ -122,9 +137,11 @@ def main_fun(Ret, de, ready_to_sampling, ):
     return in_position
 
 if __name__ == "__main__":
-    center = main_fun(Ret, de, ready_to_sampling, )
+    try:
+        while True:
+            wait_for_start()
+            center = main_fun(Ret, de, ready_to_sampling, )
+    except KeyboardInterrupt:
+        print("Stopped by user.")
     cap.release()
-    # np.savetxt("force_list_"+videoname+".txt",force_list)
-    # cv2.destroyAllWindows()
-    # open_app(r'C:\Users\22135\Desktop\相机')
-    # sampling(opera,True,center)
+
